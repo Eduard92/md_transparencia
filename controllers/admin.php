@@ -305,7 +305,7 @@ class Admin extends Admin_Controller
                     'pdf'    => $docs->anexo_pdf,
                     'excel'  => $docs->anexo_excel,
                     'anio'   => $docs->anio,
-                    'date'   => $docs->created
+                    'date'   => date('d/m/Y',$docs->created)
                 );
             }
             
@@ -381,7 +381,7 @@ class Admin extends Admin_Controller
                         $data['pdf'] = $result['data']['id'];
 
                         $update = array('anexo_pdf' => $data['pdf'],
-                                        'created' =>  date('Y-m-d'));
+                                        'created' =>  strtotime(date("Y-m-d")));
 
                         $this->archivos_m->update($id,$update);
                     }
@@ -390,7 +390,7 @@ class Admin extends Admin_Controller
                         $data['excel'] = $result['data']['id'];
 
                         $update = array('anexo_excel' => $data['excel'],
-                                        'created' =>  date('Y-m-d'));
+                                        'created' =>  strtotime(date("Y-m-d")));
 
                         $this->archivos_m->update($id,$update);
                     }
@@ -436,7 +436,7 @@ class Admin extends Admin_Controller
                         'pdf'    => $docs->anexo_pdf,
                         'excel'   => $docs->anexo_excel,
                         'anio'   => $docs->anio,
-                        'date'   => $docs->created
+                        'date'   =>  date('d/m/Y',$docs->created)
                     );
                 }
                 
@@ -447,5 +447,15 @@ class Admin extends Admin_Controller
         return $this->template->build_json($result);
     }
 
+      public function copiar()
+  {
+    $this->db->query("INSERT default_fraccion_obligaciones_archivos(id_obligacion, id_fraccion,anexo_pdf,anexo_excel,created,anio)
+    SELECT id, id_fraccion,anexo_pdf,anexo_excel,created_on,'2017'
+                FROM default_fraccion_obligaciones");
   }
+
+  }
+
+
+
  ?> 

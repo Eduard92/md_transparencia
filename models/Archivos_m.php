@@ -20,7 +20,7 @@ class Archivos_m extends MY_Model {
             'id_fraccion' => $input['id_fraccion'],
             'id_obligacion' =>$input['id_obligacion'],
             'anio' =>$input['anio'],
-			'created' =>  date('Y-m-d'));
+			'created' =>  strtotime(date("Y-m-d")));
 
 
         return $this->insert($data);
