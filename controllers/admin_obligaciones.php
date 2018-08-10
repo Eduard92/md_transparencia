@@ -45,13 +45,24 @@ class Admin_obligaciones extends Admin_Controller {
     
     function index()
     {
-        $obligaciones = $this->obligacion_m->select('*,fracciones.nombre AS nombre_fraccion,fraccion_obligaciones.id AS id')
+        
+        $fraccion = $this->input->get('fraccion');
+        $base_where = array();
+        if($fraccion)
+        {
+            $base_where['id_fraccion'] = $fraccion;
+        }
+
+
+        $obligaciones = $this->obligacion_m->select('*,fraccion_obligaciones.nombre AS nombre_obligacion,fracciones.nombre AS nombre_fraccion,fraccion_obligaciones.id AS id')
                                 ->join('fracciones','fracciones.id=fraccion_obligaciones.id_fraccion')
+                                ->where($base_where)
                                 ->order_by('ordering')
                                 ->get_all();
-        
+
         $this->template->title($this->module_details['name'])
                 ->set('obligaciones',$obligaciones)
+                ->set('fracciones',$this->fraccion_m->dropdown('id','nombre'))
                 ->build('admin/obligaciones/index');
     }
     function edit($id=0)

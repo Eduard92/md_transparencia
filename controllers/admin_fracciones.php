@@ -122,16 +122,16 @@ class Admin_fracciones extends Admin_Controller {
                 'aplicable'    => $this->input->post('aplicable'),
                 'motivo'       => $this->input->post('motivo'),
                 'anexo'        => $this->input->post('anexo'),
-                'tipo'        => $this->input->post('tipo'),
+                'tipo'         => $this->input->post('tipo'),
             );
             $folder = $this->file_folders_m->get_by_path('juridico/transparencia') OR show_error('La carpeta juridico/transparencia no existe');
             
-             $file = Files::upload($folder->id,false,'anexo');
+             //$file = Files::upload($folder->id,false,'anexo');
                     
-             if($file['status'])
+            /*if($file['status'])
              {
                         $data['anexo'] = $file['data']['id'];
-             }
+             }*/
             if($this->fraccion_m->update($id,$data))
             {
 			     Centro::AddUsers($id,'transparencia',$this->input->post('users'));
@@ -182,18 +182,18 @@ class Admin_fracciones extends Admin_Controller {
                 'descripcion'  => $this->input->post('descripcion'),
                 'aplicable'    => $this->input->post('aplicable'),
                 'motivo'       => $this->input->post('motivo'),
-                'anexo'        => '',
+                //'anexo'        => '',
                 'tipo'        => $this->input->post('tipo'),
             );
             
-             $folder = $this->file_folders_m->get_by_path('juridico/transparencia') OR show_error('La carpeta juridico/transparencia no existe');
+             //$folder = $this->file_folders_m->get_by_path('juridico/transparencia') OR show_error('La carpeta juridico/transparencia no existe');
             
-             $file = Files::upload($folder->id,false,'anexo');
+             //$file = Files::upload($folder->id,false,'anexo');
                     
-             if($file['status'])
+            /* if($file['status'])
              {
                         $data['anexo'] = $file['data']['id'];
-             }
+             }*/
             if($id = $this->fraccion_m->insert($data))
             {
 				Centro::AddUsers($id,'transparencia',$this->input->post('users'));

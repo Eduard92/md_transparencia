@@ -1,5 +1,13 @@
 <section ng-controller="IndexCtrl">
     <div class="lead text-success"><?=lang('transparencia:title')?></div>
+
+        <?php echo form_open('','id="frm" method="get"');?>
+    <div class="form-group">
+        <label>Fracciones</label>
+        <?=form_dropdown('fr',array(''=>'Todos')+$fr,$this->input->get('fr'),'class="form-control" onchange="$(\'#frm\').submit();" ')?>
+    </div>
+    
+    <?php  echo form_close();?>
     <uib-accordion close-others="!oneAtATime" class="ui-accordion">
    
     <?php foreach($fracciones as $fraccion):?>

@@ -83,7 +83,16 @@
                                         <tr>
                                             <th><strong><?=$fraccion->numeral?></strong> - <?=$fraccion->nombre?></th>
                                             <th class="text-center"><a class="<?=$fraccion->aplicable?'text-success':'text-danger'?>"><?=$fraccion->aplicable?'<i class="fa fa-check"></i>':'<i class="fa fa-close"></i>'?></a></th>
-                                            <th><?=ucfirst($fraccion->periodicidad)?></th>
+                                            <th><?php if ($fraccion->periodicidad == 1): ?>
+                                                Mensual
+                                                <?php elseif ($fraccion->periodicidad == 3): ?>
+                                                Trimestral
+                                                <?php elseif ($fraccion->periodicidad == 6): ?>
+                                                Semestral
+                                                <?php elseif ($fraccion->periodicidad == 12): ?>
+                                                Anual
+                                            <?php endif;?>
+                                            </th>
                                             <th><a href="<?=base_url('transparencia/detalles/'.$fraccion->id)?>">Detalles</a></th>
                                         </tr>
                                         <?php endforeach;?>

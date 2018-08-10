@@ -141,16 +141,34 @@ class Transparencia_front extends Public_Controller
         
         
         $fraccion = $this->fraccion_m->get($id) OR show_404();
-       
-        
+
         $fraccion->obligaciones = $this->obligacion_m->get_many_by(array('id_fraccion'=>$id));
+
         
         foreach($fraccion->obligaciones as &$obligacion)
         {
             $obligacion->campos =  json_decode($obligacion->campos);
+
+            if($obligacion->campos==null)
+            {
+                 $anexos = $this->db->select('anio, anexo_pdf,anexo_excel')
+                           ->where(array('default_fraccion_obligaciones_archivos.id_fraccion' => $id,
+                                   'default_fraccion_obligaciones_archivos.id_obligacion' => $obligacion->id))
+                           ->order_by('fraccion_obligaciones_archivos.anio','DESC')
+                           ->get('default_fraccion_obligaciones_archivos')->result();
+
+               foreach ($anexos as $anexo) 
+               {
+                    if($anexo->anexo_pdf != null){
+                        $obligacion->anexos_pdf[$anexo->anio] = $anexo->anexo_pdf;
+                    }
+                    if($anexo->anexo_excel != null){
+                        $obligacion->anexos_excel[$anexo->anio] = $anexo->anexo_excel;
+                    }
+               }
+            }               
         }
         
-       
         $this->template->title($this->module_details['name'])
                 ->set_breadcrumb($fraccion->nombre)
                 ->set('fraccion',$fraccion)

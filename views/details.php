@@ -35,15 +35,34 @@
             </div>
             
             <?php foreach($fraccion->obligaciones as $obligacion):?>
-                <h3>
+                <h4>
                     <?=$obligacion->nombre?>
-                    <?php if($obligacion->anexo_pdf):?>
-                        <a class="btn btn-default btn-small pull-right" target="_blank" href="<?=base_url('files/download/'.$obligacion->anexo_pdf)?>"><i class="fa fa-file-pdf-o"></i> Descargar PDF</a>
+                    <?php if($obligacion->anexos_pdf):?>
+                        <div class="btn-group pull-right">
+                          <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Descargar PDF <span class="caret"></span>
+                          </button>
+                             <ul class="dropdown-menu">
+                              <?php foreach($obligacion->anexos_pdf as $anio_pdf => $pdf):?>
+                                <li><a  href="#" onClick="download_ltaipec('<?=base_url('files/download/'.$pdf)?>')" ><?='LTAIPEC '.$anio_pdf?></a></li>
+                              <?php endforeach;?>
+                            </ul>
+                        </div>
                     <?php endif;?>  
-                    <?php if($obligacion->anexo_excel):?>
-                        <a class="btn btn-success btn-small pull-right" target="_blank" href="<?=base_url('files/download/'.$obligacion->anexo_excel)?>"><i class="fa fa-file-excel-o"></i> Descargar XLSX</a>
+                    <?php if($obligacion->anexos_excel):?>
+                        <div class="btn-group pull-right">
+                          <button type="button" class="btn btn-default dropdown-toggle"
+                                  data-toggle="dropdown">
+                            Descargar Excel <span class="caret"></span>
+                          </button>
+                            <ul class="dropdown-menu" role="menu">
+                               <?php foreach($obligacion->anexos_excel as $anio_excel => $excel):?>
+                                 <li><a href="#" onClick="download_ltaipec('<?=base_url('files/download/'.$excel)?>')" ><?='LTAIPEC '.$anio_excel?></a></li>
+                               <?php endforeach;?>
+                            </ul>
+                        </div>
                     <?php endif;?>
-                </h3>
+                </h4>
                 <?php if($obligacion->helper):?>
                 <div class="alert alert-info"><i class="fa fa-question-circle"></i> <?=$obligacion->helper?></div>
                 <?php endif;?>
@@ -102,4 +121,8 @@
     </div>
 </div>
 
-        
+<script language=javascript>
+function download_ltaipec(url) {
+    window.open(url);
+}
+</script>        

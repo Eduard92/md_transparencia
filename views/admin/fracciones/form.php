@@ -24,6 +24,9 @@
                                 <label>Descripción</label>
                                 <?=form_textarea('descripcion',$fraccion->descripcion,'class="form-control"');?>
                             </div>
+
+                        </div>
+                        <div class="col-md-6">
                             <div class="form-group">
                                 <label>Periodicidad</label>
                                 <?=form_dropdown('periodicidad',$periodos,$fraccion->periodicidad,'class="form-control"');?>
@@ -38,32 +41,8 @@
                                 <p class="help-block">Explique cual es el motivo por el cual no es aplicable esta fracción.</p>
                             </div>
                         </div>
-                        <div class="col-md-6">
-                             <div class="form-group">
-                                <label>Archivo anexo</label>
-                                <div class="row">
-                                    <?php if($fraccion->anexo):?>
-                                    <div class="col-md-4">
-                                        <?php $file = Files::get_file($fraccion->anexo);?>
-                                   
-                                        <a class="" href="<?=base_url('files/download/'.$file['data']->id)?>"><i class="fa fa-download"></i> Descargar archivo</a>
-                                        <input type="hidden" name="anexo" value="<?=$file['data']->id?>" />
-                                    </div>
-                                    <?php endif;?>
-                                    <div class="col-md-8">
-                                         <?=form_upload('anexo')?>
-                                    </div>
-                                </div>
-                                
-                                    
-                                
-                               
-                             </div>
-                        </div>
                     </div>
                        
-                        
-                    
                </uib-tab>
                <uib-tab heading="Usuarios">
                   <div class="alert alert-info"><?=lang('fracciones:help_users')?></div>

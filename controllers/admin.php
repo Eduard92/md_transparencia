@@ -10,7 +10,9 @@ class Admin extends Admin_Controller
         $this->load->model(array(
             'obligacion_m',
             'files/file_folders_m',
-            'desglose_m'
+            'desglose_m',
+            'archivos_m',
+            'fraccion_m',
         ));
         $this->load->library(array(
                 'files/files',
@@ -108,6 +110,8 @@ class Admin extends Admin_Controller
 			}
             redirect('admin/transparencia');
         }          
+
+
         $this->template->title($this->module_details['name'])
                 ->set('obligacion',$obligacion)
                 ->set('desglose',$desglose)
@@ -188,7 +192,13 @@ class Admin extends Admin_Controller
     function index()
     {
          $fracciones = array();
-        
+
+        $fr = $this->input->get('fr');
+        $base_where = array();
+        if($fr)
+        {
+            $base_where['id_fraccion'] = $fr;
+        }
                            
                            
         if($this->current_user->group == 'transparencia')
@@ -200,7 +210,8 @@ class Admin extends Admin_Controller
             
         }
          $this->obligacion_m->select('*,fracciones.nombre AS nombre_fraccion,fraccion_obligaciones.id AS id,fraccion_obligaciones.nombre AS nombre_obligacion')
-                           ->join('fracciones','fracciones.id=fraccion_obligaciones.id_fraccion');
+                           ->join('fracciones','fracciones.id=fraccion_obligaciones.id_fraccion')
+                           ->where($base_where);
                            
          if(empty($ids)== false)
          {
@@ -226,9 +237,12 @@ class Admin extends Admin_Controller
              
              $fracciones[$obligacion->id_fraccion]['obligaciones'][] = $obligacion;
          }
+
+
          $this->template->title($this->module_details['name'])
                 ->set('fracciones',$fracciones)
                 ->enable_parser(true)
+                ->set('fr',$this->fraccion_m->dropdown('id','nombre'))
                 ->append_js('module::transparencia.controller.js')
                 ->build('admin/index');
     }
@@ -273,50 +287,165 @@ class Admin extends Admin_Controller
     }
     function upload($id_fraccion,$id_obligacion)
     {
-        $this->load->library('files/files');
-        $this->load->model('files/file_folders_m');
-        
-        $obligacion = $this->obligacion_m->get_by(array(
-            'id'          => $id_obligacion,
-            'id_fraccion' => $id_fraccion
-        ));
-        
-        if($_POST)
+
+         $files = array();
+
+         $obligacion = $this->db->select('*')
+                           ->join('fraccion_obligaciones`','fraccion_obligaciones_archivos.id_obligacion=fraccion_obligaciones.id')
+                           ->where(array('default_fraccion_obligaciones_archivos.id_fraccion' => $id_fraccion,
+                                        'default_fraccion_obligaciones_archivos.id_obligacion' => $id_obligacion))
+                           ->order_by('fraccion_obligaciones_archivos.anio','DESC')
+                           ->get('default_fraccion_obligaciones_archivos')->result();
+
+        if($obligacion)
         {
-             $folder = $this->file_folders_m->get_by_path('juridico/transparencia') OR show_error('La carpeta juridico/transparencia no existe');
-            
-             $pdf   = Files::upload($folder->id,false,'anexo_pdf',false,false,false,'pdf');
-             $excel = Files::upload($folder->id,false,'anexo_excel',false,false,false,'xls|xlsx');
-             
-             
-             $data = array(
-                'anexo_pdf'   => $this->input->post('anexo_pdf'),
-                'anexo_excel' => $this->input->post('anexo_excel'),
-             );   
-             if($pdf['status'])
-             {
-                        $data['anexo_pdf'] = $pdf['data']['id'];
-             }
-            
-             if($excel['status'])
-             {
-                        $data['anexo_excel'] = $excel['data']['id'];
-             }
-             
-            if(!empty($data)&&$this->obligacion_m->update($obligacion->id,$data))
+            foreach($obligacion as $docs)
             {
-			     
-				$this->session->set_flashdata('success',lang('global:save_success'));
-				
-			}
+                $files[] = array(
+                    'pdf'    => $docs->anexo_pdf,
+                    'excel'  => $docs->anexo_excel,
+                    'anio'   => $docs->anio,
+                    'date'   => $docs->created
+                );
+            }
             
-            
-            redirect('admin/transparencia');
         }
+
+
         $this->template->title($this->module_details['name'])
-                ->set('obligacion',$obligacion)
-                ->enable_parser(true)
+                ->set('obligacion',$obligacion)        
+                ->append_metadata('<script type="text/javascript"> var files = '. json_encode($files) .',id_fraccion='.$id_fraccion.', id_obligacion='.$id_obligacion.';</script>')
+                ->append_js('module::transparencia.controller.js')
+                ->enable_parser(false)
                 ->build('admin/upload');
     }
+
+    public function consult_doc()
+    {
+         $result = array(
+         
+            'status' => false,
+            'anexo_pdf'=>false,
+            'anexo_excel'=>false, );        
+
+            $base_where = array('anio' => $this->input->post('anio') ,
+                                'id_obligacion' => $this->input->post('id_obligacion'),
+                                'id_fraccion' => $this->input->post('id_fraccion'));
+
+            $doc = $this->archivos_m->get_many_by($base_where); 
+
+            if($doc){
+                if(empty($doc['0']->anexo_excel)  == false)
+                {
+                    $result['anexo_excel'] = true;
+                    
+                }
+                if(empty($doc['0']->anexo_pdf) == false)
+                {
+                    $result['anexo_pdf'] = true;
+                    
+                }  
+                $result['status'] = true;
+                $result['id'] = $doc['0']->id?$doc['0']->id:null;
+            }        
+           
+           return $this->template->build_json($result);
+
+    }
+
+    function upload_file()
+    {
+        $result = array(
+        
+            'status'  => true,
+            'message' => '',
+            'data'    => false
+        );
+
+            $input = $this->input->post();
+
+            $id = $this->input->post('id');
+
+            $folder = $this->file_folders_m->get_by_path('juridico/transparencia');
+            
+            if($folder)
+            {
+                $result = Files::upload($folder->id,$input['name'],'file',false,false,false,'pdf|xls|xlsx');
+
+                
+                if($result['status'] && $id)
+                {
+
+                    if($result['data']['extension']=='.pdf')
+                    {
+                        $data['pdf'] = $result['data']['id'];
+
+                        $update = array('anexo_pdf' => $data['pdf'],
+                                        'created' =>  date('Y-m-d'));
+
+                        $this->archivos_m->update($id,$update);
+                    }
+                    else
+                    {
+                        $data['excel'] = $result['data']['id'];
+
+                        $update = array('anexo_excel' => $data['excel'],
+                                        'created' =>  date('Y-m-d'));
+
+                        $this->archivos_m->update($id,$update);
+                    }
+                  
+                    
+                }
+                elseif($result['status'])
+                {
+                    if($result['data']['extension']=='.pdf')
+                    {
+                        $data['pdf'] = $result['data']['id'];
+
+                        $result['id'] = $this->archivos_m->create($input,$data['pdf']);
+
+                    }
+                    else
+                    {
+                        $data['excel'] = $result['data']['id'];
+
+                        $result['id'] = $this->archivos_m->create($input,null,$data['excel']);
+                        
+                    }
+                }
+                
+                
+            }
+            else
+            {
+                $result['message'] = lang('files:no_folders_wysiwyg');
+                $result['status']  = false;
+            }
+
+            $obligacion = $this->db->select('*')
+                           ->where(array('default_fraccion_obligaciones_archivos.id_fraccion' =>$input['id_fraccion'],
+                                        'default_fraccion_obligaciones_archivos.id_obligacion' => $input['id_obligacion']))
+                           ->order_by('fraccion_obligaciones_archivos.anio','DESC')
+                           ->get('default_fraccion_obligaciones_archivos')->result();
+            if($obligacion)
+            {
+                foreach($obligacion as $docs)
+                {
+                    $files[] = array(
+                        'pdf'    => $docs->anexo_pdf,
+                        'excel'   => $docs->anexo_excel,
+                        'anio'   => $docs->anio,
+                        'date'   => $docs->created
+                    );
+                }
+                
+            }
+
+            $result['files'] = $files;
+        
+        return $this->template->build_json($result);
+    }
+
   }
  ?> 
