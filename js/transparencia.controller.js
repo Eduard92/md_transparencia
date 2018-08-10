@@ -74,20 +74,15 @@
                  {
                      $scope.anexo_pdf = 'Actualmente tiene un documento.';
                  }
-
-                 console.log( result);
                       
             });
         }
 
 
                 
-        $scope.save = function(){
-
-
-
-                   $uibModalInstance.close();
-
+        $scope.save = function()
+        {
+             $uibModalInstance.close();
                   
         }
         $scope.upload_file = function(file,type)
@@ -112,19 +107,12 @@
                      files.length = 0;
 
                       $.each(result.files, function( key, value ) {
-                            console.log( key + ": " + value );
+                            //console.log( key + ": " + value );
 
                             files.push(value);
 
                       });
-
-                      
-
-                     
-
-                     console.log( files );
-                  
-                 //console.log(result);
+                      logger.logSuccess('Archivo Subido Exitosamente');
                  
                  
               });
