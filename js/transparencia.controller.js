@@ -18,6 +18,24 @@
     function InputCtrl($scope,$http,$uibModal,logger)
     {
         $scope.files_obligacion = files;
+ 
+        $scope.delete = function(id,index)
+        {
+            $http.post(SITE_URL+'admin/transparencia/delete_file',{id_fraccion:id_fraccion,id_obligacion:id_obligacion,id:id}).then(function(response){
+                           
+
+              var result = response.data;
+                if (result.status == true)
+                 {
+                    $scope.files_obligacion.splice(index,1);
+
+                 }
+
+                 logger.logSuccess(result.message);
+                      
+            });
+
+        }
 
        $scope.upload = function()
        {
@@ -43,11 +61,13 @@
 
     function InputModal($scope,$http,$uibModalInstance,$timeout,$cookies,logger,Upload,files)
     {
-         $scope.id_doc = '';
-         $scope.anexo_pdf ='';
-         $scope.anexo_excel ='';
+         //$scope.id_doc = '';
+         //$scope.anexo_pdf ='';
+         //$scope.anexo_excel ='';
          $scope.dispose = true;
-
+         $scope.cont = 0;
+         $scope.cont_temp1 = 0;
+         $scope.cont_temp2 = 0;
 
         
 
@@ -57,10 +77,17 @@
 
         $scope.consult = function()
         {
+         $scope.id_doc = '';
+         $scope.anexo_pdf ='';
+         $scope.anexo_excel ='';
+         $scope.status_excel = false;
+         $scope.status_pdf = false;
 
             $http.post(SITE_URL+'admin/transparencia/consult_doc',{id_fraccion:id_fraccion,id_obligacion:id_obligacion,anio:$scope.anio}).then(function(response){
               
                  var result = response.data;
+
+
                 
                  if (result.status)
                  {
@@ -69,11 +96,18 @@
                  if (result.anexo_excel)
                  {
                      $scope.anexo_excel  = 'Actualmente tiene un documento.';
+                     $scope.status_excel = true;
+                     $scope.cont_temp1 = 1;
+
                  }
                  if (result.anexo_pdf)
                  {
                      $scope.anexo_pdf = 'Actualmente tiene un documento.';
+                     $scope.status_pdf = true;
+                     $scope.cont_temp2 = 1;
                  }
+
+                 $scope.cont = $scope.cont_temp1 + $scope.cont_temp2;
                       
             });
         }
@@ -85,6 +119,45 @@
              $uibModalInstance.close();
                   
         }
+
+        $scope.delete_file = function(tipo)
+        {
+            console.log(tipo);
+            $http.post(SITE_URL+'admin/transparencia/update',{tipo:tipo,id:$scope.id_doc,id_fraccion:id_fraccion,id_obligacion:id_obligacion,}).then(function(response){           
+
+              var result = response.data;
+                console.log(result);
+                if(result.status == true)
+                {
+                    files.length = 0;
+
+                      $.each(result.files, function( key, value ) {
+                            //console.log( key + ": " + value );
+
+                            files.push(value);
+
+                      });
+                      logger.logSuccess(result.message);
+                      $scope.cont = 1;
+
+                    if(tipo == 'pdf')
+                    {
+                        $scope.anexo_pdf = null;
+                    }
+                    else
+                    {
+                        $scope.anexo_excel = null;
+                    }
+                }
+                else
+                {
+                 logger.logError(result.message);   
+                }          
+            });
+            
+                
+        }
+
         $scope.upload_file = function(file,type)
         {
             // $scope.files_obligacion;
@@ -102,6 +175,7 @@
                   file.result = response.data;
                   $scope.dispose = true;
                   
+                  if(result.status == true){
                      $scope.id_doc =  result.id?result.id:$scope.id_doc;
 
                      files.length = 0;
@@ -113,6 +187,22 @@
 
                       });
                       logger.logSuccess('Archivo Subido Exitosamente');
+                       $scope.cont =  $scope.cont + 1;
+
+                    if(type == 'pdf')
+                    {
+                        $scope.anexo_pdf = 'Actualmente tiene un documento.';
+                    }
+                    else
+                    {
+                         $scope.anexo_excel = 'Actualmente tiene un documento.';
+
+                    }
+                  }
+                  else
+                  {
+                    logger.logError(result.message);
+                  }
                  
                  
               });

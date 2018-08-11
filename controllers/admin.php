@@ -290,7 +290,7 @@ class Admin extends Admin_Controller
 
          $files = array();
 
-         $obligacion = $this->db->select('*')
+         $obligacion = $this->db->select('*, fraccion_obligaciones_archivos.id as id_archivo')
                            ->join('fraccion_obligaciones`','fraccion_obligaciones_archivos.id_obligacion=fraccion_obligaciones.id')
                            ->where(array('default_fraccion_obligaciones_archivos.id_fraccion' => $id_fraccion,
                                         'default_fraccion_obligaciones_archivos.id_obligacion' => $id_obligacion))
@@ -305,15 +305,21 @@ class Admin extends Admin_Controller
                     'pdf'    => $docs->anexo_pdf,
                     'excel'  => $docs->anexo_excel,
                     'anio'   => $docs->anio,
-                    'date'   => date('d/m/Y',$docs->created)
+                    'date'   => date('d/m/Y',$docs->created),
+                    'id'    => $docs->id_archivo,
                 );
             }
             
         }
-
+        else
+        {
+            $obligacion = $this->obligacion_m->get_many_by(array('id_fraccion' => $id_fraccion,
+                                        'id' => $id_obligacion));
+        }
 
         $this->template->title($this->module_details['name'])
-                ->set('obligacion',$obligacion)        
+                ->set('obligacion',$obligacion)
+                ->set('')        
                 ->append_metadata('<script type="text/javascript"> var files = '. json_encode($files) .',id_fraccion='.$id_fraccion.', id_obligacion='.$id_obligacion.';</script>')
                 ->append_js('module::transparencia.controller.js')
                 ->enable_parser(false)
@@ -423,7 +429,7 @@ class Admin extends Admin_Controller
                 $result['status']  = false;
             }
 
-            $obligacion = $this->db->select('*')
+            $obligacion = $this->db->select('*, fraccion_obligaciones_archivos.id as id_archivo')
                            ->where(array('default_fraccion_obligaciones_archivos.id_fraccion' =>$input['id_fraccion'],
                                         'default_fraccion_obligaciones_archivos.id_obligacion' => $input['id_obligacion']))
                            ->order_by('fraccion_obligaciones_archivos.anio','DESC')
@@ -436,7 +442,8 @@ class Admin extends Admin_Controller
                         'pdf'    => $docs->anexo_pdf,
                         'excel'   => $docs->anexo_excel,
                         'anio'   => $docs->anio,
-                        'date'   =>  date('d/m/Y',$docs->created)
+                        'date'   =>  date('d/m/Y',$docs->created),
+                        'id'    => $docs->id_archivo,
                     );
                 }
                 
@@ -447,12 +454,104 @@ class Admin extends Admin_Controller
         return $this->template->build_json($result);
     }
 
-      public function copiar()
-  {
-    $this->db->query("INSERT default_fraccion_obligaciones_archivos(id_obligacion, id_fraccion,anexo_pdf,anexo_excel,created,anio)
-    SELECT id, id_fraccion,anexo_pdf,anexo_excel,created_on,'2017'
-                FROM default_fraccion_obligaciones");
-  }
+
+
+    public function delete_file()
+    {
+        $result = array(
+        
+            'status'  => false,
+            'message' => '',
+            'data'    => false
+        );
+
+         $id = $this->input->post('id');
+         $id_fraccion = $this->input->post('id_fraccion');
+         $id_obligacion = $this->input->post('id_obligacion');
+
+
+        if($this->archivos_m->delete($id))
+        {
+            $result['message']  = 'Registro Eliminado Correctamente ' ;
+            $result['status']   = true;
+
+        }
+        else
+        {
+            $result['message'] = 'Error al eliminar Registro ' ;
+        }
+
+        
+            $this->template->build_json($result);
+
+    }
+
+        public function update()
+    {
+        $result = array(
+        
+            'status'  => false,
+            'message' => '',
+        );
+
+         $id = $this->input->post('id');
+         $tipo = $this->input->post('tipo');
+         $id_fraccion = $this->input->post('id_fraccion');
+         $id_obligacion = $this->input->post('id_obligacion');
+
+
+         if($tipo =='.pdf')
+        {
+            if($this->archivos_m->update($id,array('anexo_pdf' => null)))
+            {
+                $result['message']  = 'Archivo Eliminados Correctamente ' ;
+                $result['status']   = true;
+            }
+            else
+            {
+              $result['message'] = 'Error al eliminar Archivos ' ;     
+            }
+        }
+        else
+        {
+            if($this->archivos_m->update($id,array('anexo_excel' => null)))
+            {
+                $result['message']  = 'Archivo Eliminados Correctamente ' ;
+                $result['status']   = true;
+            }
+            else
+            {
+                $result['message'] = 'Error al eliminar Archivos ' ;       
+            }
+        }
+
+        $obligacion = $this->db->select('*, fraccion_obligaciones_archivos.id as id_archivo')
+                           ->where(array('default_fraccion_obligaciones_archivos.id_fraccion' =>$id_fraccion,
+                                        'default_fraccion_obligaciones_archivos.id_obligacion' => $id_obligacion))
+                           ->order_by('fraccion_obligaciones_archivos.anio','DESC')
+                           ->get('default_fraccion_obligaciones_archivos')->result();
+            if($obligacion)
+            {
+                foreach($obligacion as $docs)
+                {
+                    $files[] = array(
+                        'pdf'    => $docs->anexo_pdf,
+                        'excel'   => $docs->anexo_excel,
+                        'anio'   => $docs->anio,
+                        'date'   =>  date('d/m/Y',$docs->created),
+                        'id'    => $docs->id_archivo,
+                    );
+                }
+                
+            }
+
+            $result['files'] = $files;
+        
+        return $this->template->build_json($result);
+        
+            $this->template->build_json($result);
+
+    }
 
   }
 

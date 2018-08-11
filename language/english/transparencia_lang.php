@@ -17,4 +17,9 @@ $lang['fracciones:order_success'] 					= 'El orden de las fracciones ha sido gua
 
 $lang['fracciones:order_error'] 					= 'Error al tratar de guardar el orden de las fracciones';
 
+$lang['archivo:delete_success'] 				= 'Archivo borrado exitosamente';
+$lang['archivo:delete_error'] 					= 'Error al tratar de eliminar el archivo';
+
+
+
 ?>
