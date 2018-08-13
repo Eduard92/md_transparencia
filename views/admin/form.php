@@ -28,20 +28,17 @@
                                 echo form_input($campo->slug,$desglose->campos->{$campo->slug},'class="form-control col-lg-8"');
                          break;
                          case 'calendar':
-                                 echo ('<div class="form-group">
-                                <div class="input-group ui-datepicker">');
-                                echo form_input('$campo->slug','$desglose->campos->{$campo->slug}',
-                                            'class="form-control" 
-                                            placeholder="Inicio"
-                                            uib-datepicker-popup="yyyy-MM-dd"
-                                            ng-model="fecha"
-                                            is-open="fecha.ini" 
-                                            datepicker-options="dateOptions" 
-                                            date-disabled="disabled(date, mode)" 
-                                            ');
-                                echo('<span class="input-group-addon" ng-click="fecha.ini=true;"><i class="glyphicon glyphicon-calendar"></i></span>
-                                        </div>
-                                    </div>');
+
+                                echo '<div ng-init="'.$campo->slug.'=\''.$desglose->campos->{$campo->slug}.'\'" class="input-group ui-datepicker">'.form_input($campo->slug,$desglose->campos->{$campo->slug},'readonly class="form-control"
+                                        uib-datepicker-popup="dd/MM/yyyy" 
+                                        ng-model="'.$campo->slug.'"
+                                       is-open="open_'.$campo->slug.'" 
+                                       
+                                       datepicker-options="dateOptions" 
+                                       date-disabled="disabled(date, mode)" 
+                                       
+                                       close-text="Cerrar"
+                                ').'<span class="input-group-addon" ng-click="open_'.$campo->slug.'=true;"><i class="glyphicon glyphicon-calendar"></i></span></div>';
                          break;
                         
                          default:
