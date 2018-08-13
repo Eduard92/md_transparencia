@@ -64,6 +64,9 @@
                                                 case 'input':
                                                     $html = $campos->{$campo->slug};
                                                 break;
+                                                case 'calendar':
+                                                    $html = $campos->{$campo->slug};
+                                                break;
                                                 default:
                                                 break;
                                              }

@@ -24,6 +24,25 @@
                                 echo form_hidden($campo->slug,$desglose->campos->{$campo->slug});
                          
                          break;
+                         case 'input':
+                                echo form_input($campo->slug,$desglose->campos->{$campo->slug},'class="form-control col-lg-8"');
+                         break;
+                         case 'calendar':
+                                 echo ('<div class="form-group">
+                                <div class="input-group ui-datepicker">');
+                                echo form_input('$campo->slug','$desglose->campos->{$campo->slug}',
+                                            'class="form-control" 
+                                            placeholder="Inicio"
+                                            uib-datepicker-popup="yyyy-MM-dd"
+                                            ng-model="fecha"
+                                            is-open="fecha.ini" 
+                                            datepicker-options="dateOptions" 
+                                            date-disabled="disabled(date, mode)" 
+                                            ');
+                                echo('<span class="input-group-addon" ng-click="fecha.ini=true;"><i class="glyphicon glyphicon-calendar"></i></span>
+                                        </div>
+                                    </div>');
+                         break;
                         
                          default:
                          break;
