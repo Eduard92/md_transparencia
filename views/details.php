@@ -22,7 +22,16 @@
                                 <dt>Descripción:</dt>
                                 <dd><?=$fraccion->aplicable?($fraccion->descripcion?$fraccion->descripcion:'Sin descripción'):$fraccion->motivo?></dd>
                                 <dt>Periodicidad:</dt>
-                                <dd><?=ucfirst($fraccion->periodicidad)?></dd>
+                                <dd><?php if ($fraccion->periodicidad == 1): ?>
+                                        Mensual
+                                    <?php elseif ($fraccion->periodicidad == 3): ?>
+                                        Trimestral
+                                    <?php elseif ($fraccion->periodicidad == 6): ?>
+                                        Semestral
+                                    <?php elseif ($fraccion->periodicidad == 12): ?>
+                                        Anual
+                                    <?php endif;?>
+                                </dd>
                                 
                                 <!--dt>Documento PDF:</dt>
                                 <dd>
