@@ -22,4 +22,6 @@ $lang['fracciones:order_success'] 					= 'El orden de las fracciones ha sido gua
 
 $lang['fracciones:order_error'] 					= 'Error al tratar de guardar el orden de las fracciones';
 
+$lang['transparencia:not_file_upload'] 					= 'Actualmente no existen archivos';
+
 ?>

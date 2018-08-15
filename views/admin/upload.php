@@ -1,10 +1,10 @@
 <section ng-controller="InputCtrl">
     <div class="lead text-success"><?=sprintf(lang('transparencia:uploads'),$obligacion['0']->nombre)?></div>
      <?php echo form_open_multipart(uri_string()); ?>
-    <a href="#"  ng-click="upload()" uib-tooltip="Subir Archivo" class="btn btn-primary pull-right">Administrar Archivos</a>
+    <a href="#"  ng-if = "files_obligacion.length != 0"  ng-click="upload()" uib-tooltip="Subir Archivo" class="btn btn-primary pull-right">Administrar Archivos</a>
 
         <div class="row col-md-12">
-            <table class="table">
+            <table class="table" ng-if = "files_obligacion.length != 0 ">
                 <thead>
                     <tr>
                         <th>Archivo PDF</th>
@@ -31,6 +31,10 @@
                     </tr>
                 </tbody>
             </table>
+            <div class="alert alert-info text-center" ng-if="files_obligacion.length == 0">
+                <?=lang('transparencia:not_file_upload');?><br><br>
+            <button type="button" class="btn"  ng-click="upload()"><i class="fa fa-upload"></i> Subir Archivos </button>
+        </div>
 
     </div>
     <?php echo form_close();?>                       
