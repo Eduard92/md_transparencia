@@ -233,11 +233,29 @@ class Admin extends Admin_Controller
                     'descripcion'   => $obligacion->descripcion,
                     'obligaciones' => array()
                 );
+                
+               $anexos = $this->db->select('anio, anexo_pdf,anexo_excel')
+                           ->where(array('default_fraccion_obligaciones_archivos.id_fraccion' => $obligacion->id_fraccion,
+                                   'default_fraccion_obligaciones_archivos.id_obligacion' => $obligacion->id))
+                           ->order_by('fraccion_obligaciones_archivos.anio','DESC')
+                           ->get('default_fraccion_obligaciones_archivos')->result();
+                if($anexos)
+                {           
+                   foreach ($anexos as $anexo) 
+                   {
+                        if($anexo->anexo_pdf != null){
+                            $obligacion->anexos_pdf[$anexo->anio] = $anexo->anexo_pdf;
+                        }
+                        if($anexo->anexo_excel != null){
+                            $obligacion->anexos_excel[$anexo->anio] = $anexo->anexo_excel;
+                        }
+                   }
+                }
+
              }
              
              $fracciones[$obligacion->id_fraccion]['obligaciones'][] = $obligacion;
          }
-
 
          $this->template->title($this->module_details['name'])
                 ->set('fracciones',$fracciones)

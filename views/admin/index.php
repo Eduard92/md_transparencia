@@ -30,7 +30,7 @@
                     <?php endif;?>
                     
                     
-                    <a  href="<?=base_url('admin/transparencia/upload/'.$table->id_fraccion.'/'.$table->id)?>" class="btn btn-default pull-right"><i class="fa fa-upload"></i> <?=$table->anexo_pdf || $table->anexo_excel?'Actualizar formatos':' Subir formatos' ?></a>
+                    <a  href="<?=base_url('admin/transparencia/upload/'.$table->id_fraccion.'/'.$table->id)?>" class="btn btn-default pull-right"><i class="fa fa-upload"></i> <?=$table->anexos_pdf  || $table->anexos_excel?'Actualizar formatos':' Subir formatos' ?></a>
                 </div>
               </div>
              
