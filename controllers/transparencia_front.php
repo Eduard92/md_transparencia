@@ -15,7 +15,9 @@ class Transparencia_front extends Public_Controller
         $this->load->model(array(
         
             'fraccion_m',
-            'obligacion_m'
+            'obligacion_m',
+            'centros/centro_m'
+
         ));
         
         $this->load->library('files/files');
@@ -174,5 +176,54 @@ class Transparencia_front extends Public_Controller
                 ->set('fraccion',$fraccion)
                 ->build('details');
     }
+
+     function resumen()
+     {
+        $centros=$this->centro_m->get_all();
+
+        array_pop($centros);
+        
+        $this->template ->set_breadcrumb('Informe de Actividades y Rendimiento de Cuentas en la Educación Media Superior')
+                        ->set('centros',$centros)
+                        ->title($this->module_details['name'])
+                        ->build('resumen');
+     }
+
+     function informe($id=0)
+    {
+
+        $this->load->library('curl');
+
+        if(!$centro=$this->centro_m->get($id))
+        {
+            redirect('transparencia/resumen');
+        }
+      
+        
+        $output = $this->curl->get('http://200.77.238.31/informe2016/web/documentossubidos/viewcct?CCT='.$centro->clave);
+        
+
+        
+        preg_match('/<table[^>]*>(.*)<\/table>/s',$output,$matches);
+        //preg_match('/<tbody[^>](.*)</tbody>/s',$output,$matches);
+        if($matches)
+        {
+            $table =  $matches[0];
+
+            //print_r(   preg_replace('/<a href="/', '<a href="http://200.77.238.31$1', $table));
+            $table =  preg_replace('/<a href="/', '<a href="http://200.77.238.31$1', $table);
+
+
+        }
+
+
+         $this->template->title($this->module_details['name'])
+                        ->set_breadcrumb('Informe de Actividades y Rendimiento de Cuentas en la Educación Media Superior  '.$centro->nombre)   
+                        ->set('centro',$centro)
+                        ->set('table',$table)
+                        
+                        ->build('informe');
+    }
+
 }
 ?>
