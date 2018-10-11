@@ -183,7 +183,7 @@ class Transparencia_front extends Public_Controller
 
         array_pop($centros);
         
-        $this->template ->set_breadcrumb('Informe de Actividades y Rendimiento de Cuentas en la Educación Media Superior')
+        $this->template ->set_breadcrumb('Informe de Actividades y Rendición de Cuentas en la Educación Media Superior')
                         ->set('centros',$centros)
                         ->title($this->module_details['name'])
                         ->build('resumen');
@@ -218,7 +218,7 @@ class Transparencia_front extends Public_Controller
 
 
          $this->template->title($this->module_details['name'])
-                        ->set_breadcrumb('Informe de Actividades y Rendimiento de Cuentas en la Educación Media Superior  '.$centro->nombre)   
+                        ->set_breadcrumb('Informe de Actividades y Rendición de Cuentas en la Educación Media Superior  '.$centro->nombre)   
                         ->set('centro',$centro)
                         ->set('table',$table)
                         
